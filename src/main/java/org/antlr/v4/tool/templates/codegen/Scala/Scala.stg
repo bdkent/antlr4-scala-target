@@ -332,7 +332,7 @@ RuleFunction(currentRule,code,locals,ruleCtx,altLabelCtxs,namedActions,finallyAc
 	<locals; separator="\n">
 	try {
 <if(currentRule.hasLookaheadBlock)>
-		val _alt: Int ;
+		var _alt: Int = 0;
 <endif>
 		<code>
 		<postamble; separator="\n">
@@ -764,7 +764,7 @@ RuleContextListDecl(rdecl) ::= "public List\<<rdecl.ctxName>> <rdecl.name> = new
 ContextTokenGetterDecl(t)      ::=
     "def <t.name>(): TerminalNode = { getToken(<parser.name>.<t.name>, 0); }"
 ContextTokenListGetterDecl(t)  ::=
-    "def <t.name>(): List[? extends TerminalNode] = { getTokens(<parser.name>.<t.name>); }"
+    "def <t.name>(): List[_ \<: TerminalNode] = { getTokens(<parser.name>.<t.name>); }"
 ContextTokenListIndexedGetterDecl(t)  ::= <<
 def <t.name>(i : Int): TerminalNode = {
 	getToken(<parser.name>.<t.name>, i);
