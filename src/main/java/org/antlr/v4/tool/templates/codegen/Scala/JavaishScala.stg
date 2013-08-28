@@ -211,28 +211,6 @@ fileHeader(grammarFileName, ANTLRVersion) ::= <<
 // Generated from <grammarFileName; format="java-escape"> by ANTLR <ANTLRVersion>
 >>
 
-caseClassType(parent, model) ::= <<
-<if(model.rule)><\\>
-    <model.ruleName; format="cap">AST<\\>
-<elseif(model.empty)><\\>
-    String<\\>
-<elseif(model.option)><\\>
-    Option[<caseClassType(model, model.contained)>]<\\>
-<elseif(model.list)><\\>
-    List[<caseClassType(model, model.contained)>]<\\>
-<elseif(model.nonEmptyList)><\\>
-    List[<caseClassType(model, model.contained)>]<\\>
-<elseif(model.sequence)><\\>
-    (<model.sequences: { seq |<\\>
-        <caseClassType(model, seq)><\\>
-    }; separator=", ">)<\\>
-<elseif(model.choice)><\\>
-    Either[<trunc(model.choices): { choice |<\\>
-        <caseClassType(model, choice)><\\>
-    }; separator=",Either[">,<caseClassType(model, last(model.choices))><trunc(model.choices): { c | ] }><\\>        
-<endif><\\>
->>
-
 Parser(parser, funcs, atn, sempredFuncs, superClass) ::= <<
 <Parser_(ctor="parser_ctor", ...)>
 >>
@@ -249,46 +227,7 @@ object <parser.name> {
 	val ruleNames: Array[String] = scala.List(
 		<parser.ruleNames:{r | "<r>"}; separator=", ", wrap, anchor>
 	).toArray
-        
-        <if(namedActions.__MAGIC_SCALA_TARGET_MODEL__)><\\>
-            sealed trait <parser.name; format="cap">AST
-            <namedActions.__MAGIC_SCALA_TARGET_MODEL__: { caseClassModel |<\\>
-                case class <caseClassModel.caseName; format="cap">AST(<\\>
-                <caseClassModel.params: { paramName |<\\>
-                    <paramName>: <caseClassType(caseClassModel, caseClassModel.params.(paramName))><\\>
-                }; separator=", "><\\>
-                ) extends <parser.name; format="cap">AST
-            }><\\>
-        <endif>
-        
-        <!
-        
-        <parser.rules:{r |
-        
-            case class <r.name; format="cap">AST (<\\>
-            <if(r.alt)><\\>
-                <r.alt:{alt |<\\>
-                    <if(alt.ruleRefs)><\\>
-                        <if(rest(alt.ruleRefs))><\\>
-                            ast: (<alt.ruleRefs:{ruleRef | <ruleRef; format="cap">AST}; separator=", ">)<\\>
-
-                            ast: Either[<trunc(alt.ruleRefs):{ruleRefs |
-                                 <ruleRefs; format="cap">AST
-                            }; separator=",Either[">,<last(alt.ruleRefs); format="cap">AST]
-
-                        <else><\\>
-                            <first(alt.ruleRefs)>: <first(alt.ruleRefs); format="cap">AST<\\>
-                        <endif><\\>
-                    <endif><\\>
-                }; separator=", "><\\>
-            <endif><\\>
-            ) <\\>
-            extends <parser.name; format="cap">AST
-        }>
-        !>
 }
-
-
 
 <if(parser.abstractRecognizer)>abstract <endif>class <parser.name>(input: TokenStream) extends <superClass>(input) {
 
@@ -835,9 +774,6 @@ ContextRuleGetterDecl(r)       ::= <<
 def <r.name>(): <r.ctxName> = {
 	getRuleContext(classOf[<r.ctxName>],0);
 }
-def <r.name>AST(): Option[<r.name; format="cap">AST] = {
-    Option.apply(<r.name>()).map(_.<r.name>AST())
-}
 >>
 ContextRuleListGetterDecl(r)   ::= <<
 def <r.name>(): List[_ \<: <r.ctxName>] = {
@@ -868,7 +804,6 @@ CaptureNextTokenType(d) ::= "<d.varName> = _input.LA(1);"
 StructDecl(struct,attrs,getters,dispatchMethods,interfaces,extensionMembers,
            superClass={ParserRuleContext}) ::= <<
 class <struct.name>(parent: ParserRuleContext, invokingState<struct.ctorAttrs:{a | , <a>}>: Int) extends <superClass>(parent, invokingState<struct.ctorAttrs:{a | , <a>}>)<if(interfaces)> with <interfaces; separator=", "><endif> {
-    def <struct.derivedFromName>AST(): <struct.derivedFromName; format="cap">AST = null
 	<attrs:{a | <a>}; separator="\n">
 	<getters:{g | <g>}; separator="\n">
 	<if(struct.ctorAttrs)>public <struct.name>(parent: ParserRuleContext, invokingState: Int) { super(parent, invokingState); }<endif>
